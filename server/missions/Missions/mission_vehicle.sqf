@@ -60,7 +60,7 @@ waitUntil
 diag_log format["WASTELAND SERVER - Mission Resumed"];
 _result = 0;
 
-_veh = ["BTR60_TK_EP1","M1126_ICV_MK19_EP1","BRDM2_TK_GUE_EP1","M113_UN_EP1","BTR90","LAV25","M6_EP1","MH60S","UH60M_EP1","MV22","CH_47F_BAF","UH1Y","BAF_Merlin_HC3_D","AW159_Lynx_BAF","AH6X_EP1","BTR40_MG_TK_GUE_EP1","GAZ_Vodnik_HMG","GAZ_Vodnik","BRDM2_HQ_TK_GUE_EP1","BRDM2_TK_GUE_EP1","T34","T55_TK_GUE_EP1","BMP3","M1128_MGS_EP1","T90","T72_INS","M1133_MEV_EP1","BAF_Jackal2_L2A1_w","ArmoredSUV_PMC","BTR40_MG_TK_GUE_EP1","BAF_Jackal2_L2A1_D","MtvrRefuel","MtvrReammo","MtvrRepair"] call BIS_fnc_selectRandom;
+_veh = ["BTR60_TK_EP1","M1126_ICV_MK19_EP1","BRDM2_TK_GUE_EP1","M113_UN_EP1","BTR90","LAV25","M6_EP1","MV22","UH1Y","Mi17_Civilian","Mi17_medevac_RU","MH60S","UH60M_EP1","CH_47F_BAF","MH6J_EP1","AH6X_EP1","UH1H_TK_GUE_EP1","Ka60_PMC","BAF_Merlin_HC3_D","AW159_Lynx_BAF","BTR40_MG_TK_GUE_EP1","GAZ_Vodnik_HMG","GAZ_Vodnik","BRDM2_HQ_TK_GUE_EP1","BRDM2_TK_GUE_EP1","T34","T55_TK_GUE_EP1","BMP3","M1128_MGS_EP1","T90","T72_INS","M1133_MEV_EP1","BAF_Jackal2_L2A1_w","ArmoredSUV_PMC","BTR40_MG_TK_GUE_EP1","BAF_Jackal2_L2A1_D","MtvrRefuel","MtvrReammo","MtvrRepair"] call BIS_fnc_selectRandom;
 
 //Add marker to client marker array.
 clientMissionMarkers set [count clientMissionMarkers,["Mission_Marker",_randomPos,_veh]];

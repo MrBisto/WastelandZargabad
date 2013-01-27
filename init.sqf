@@ -55,4 +55,4 @@ _fast_roping = [] execVM "client\functions\=BTC=_fast_roping_init.sqf";
 [] execVM "addons\R3F_ARTY_AND_LOG\init.sqf";
 [] execVM "addons\proving_Ground\init.sqf";
 [0.1, 0.5, 0.5] execVM "addons\scripts\DynamicWeatherEffects.sqf";
-
+_null = [] execVM "addons\scripts\cleanup.sqf";
