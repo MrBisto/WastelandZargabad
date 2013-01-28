@@ -12,8 +12,8 @@ private ["_unitsAlive","_playerPresent","_subTextColour","_vehicleName","_missio
 _result = 0;
 _subTextColour = "#FFFFFF";
 _HeadColor = "#17FF41";
-_missionTimeOut = 600;
-_missionDelayTime = [60,120,180,240,300] call BIS_fnc_selectRandom;
+_missionTimeOut = 900;
+_missionDelayTime = [60,120,180] call BIS_fnc_selectRandom;
 _missionPlayerRadius = 150;
 _missionRewardRadius = 250;
 _reward = floor(random 500);
@@ -61,10 +61,10 @@ diag_log format["WASTELAND SERVER - Mission Resumed"];
 _result = 0;
 
 //Add marker to client marker array.
-clientMissionMarkers set [count clientMissionMarkers,["AirWreck_Marker",_randomPos,"Position from scouts"]];
+clientMissionMarkers set [count clientMissionMarkers,["AirWreck_Marker",_randomPos,"Crash Site"]];
 publicVariable "clientMissionMarkers"; 
 
-_vehicleName = ["C130J_wreck_EP1"] call BIS_fnc_selectRandom;
+_vehicleName = ["C130J_wreck_EP1","UH60_wreck_EP1","UH1Wreck"] call BIS_fnc_selectRandom;
 _wreck = createVehicle [_vehicleName,[(_randomPos select 0) + 10, (_randomPos select 1) + 10,0],[], 0, "NONE"];
 _wreck setVariable["original",1,true];
 
@@ -76,7 +76,7 @@ _box2 = createVehicle ["USSpecialWeaponsBox",[(_randomPos select 0), (_randomPos
 _hint = parseText format ["<t align='center' color='%1' shadow='2' size='1.75'>Wreck Mission</t><br/><t align='center' color='%1'>------------------------------</t><br/><t align='center' color='%2'>Our scouts have relayed position of crashed air vehicle, be aware that enemy combatants may still be alive and may be aggressive.</t>", _HeadColor, _subTextColour];
 [nil,nil,rHINT,_hint] call RE;
 
-_choice = ["server\missions\Units\smallGroup.sqf","server\missions\Units\midGroup.sqf","server\missions\Units\largeGroup.sqf","server\missions\Units\hugeGroup.sqf"] call BIS_fnc_selectRandom;
+_choice = ["server\missions\Units\smallGroup.sqf","server\missions\Units\midGroup.sqf"] call BIS_fnc_selectRandom;
 CivGrpM = createGroup civilian;
 [CivGrpM,_randomPos]execVM _choice;
 
@@ -110,12 +110,11 @@ if(_result == 1) then
     deleteVehicle _wreck;
     deleteGroup CivGrpM;
 
-	_InArea = _randomPos nearEntities _missionRewardRadius;
-	{
-		if (isPlayer _x) then {
-			player setVariable["cmoney", (player getVariable "cmoney")+_reward,true];
+    {
+		if ((_x distance _randomPos) <= _missionRewardRadius) then {
+			_x setVariable["cmoney", (_x getVariable "cmoney")+_reward,true];
 		};
-	} forEach _InArea;
+    } foreach playableunits;
 	
     _hint = parseText format ["<t align='center' color='%1' shadow='2' size='1.75'>Wreck Secured</t><br/><t align='center' color='%1'>------------------------------</t><br/><t align='center' color='%2'>A side has secured the wreck and the unit that survived has been eliminated</t><br/><t align='center' color='%2'>Reward Money: %3</t>",_HeadColor, _subTextColour,_reward];
 	[nil,nil,rHINT,_hint] call RE;

@@ -138,7 +138,8 @@ ammoArray = [
     ["M136 Amo","M136",150],
     ["Stinger Ammo","Stinger",150],
     ["Javelin Ammo","Javelin",250],
-    ["NLAW Ammo","NLAW",250]
+    ["NLAW Ammo","NLAW",250],
+	["8rnds 82mm HE","ARTY_8Rnd_82mmHE_2B14",300]
 ];
 
 //Gun Store Equipment List

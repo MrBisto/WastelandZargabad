@@ -4,7 +4,7 @@
 //	@file Created: 28/11/2012 05:19
 //	@file Args:
 
-_radius = 200;
+_radius = 75;
 _status = [];
 _gunStores = ["gs1","gs2"];
 _col_empty = "ColorBlue";

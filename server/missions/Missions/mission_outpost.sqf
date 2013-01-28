@@ -6,14 +6,14 @@
 
 if(!isServer) exitwith {};
 diag_log format["WASTELAND SERVER - Mission Started"];
-private ["_unitsAlive","_playerPresent","_subTextColour","_comp","_outpost","_missionTimeOut","_missionDelayTime","_missionRewardRadius","_hint","_startTime","_currTime","_result","_randomIndex","_selectedMarker","_indexAmount","_GotLoc","_randomPos","_choice","_HeadColor","_InArea","_reward"];
+private ["_unitsAlive","_playerPresent","_subTextColour","_comp","_outpost","_missionTimeOut","_missionDelayTime","_missionRewardRadius","_hint","_startTime","_currTime","_result","_randomIndex","_selectedMarker","_indexAmount","_GotLoc","_randomPos","_choice","_HeadColor","_InArea","_reward","_box","_box2"];
 
 //Mission Initialization.
 _result = 0;
 _subTextColour = "#FFFFFF";
 _HeadColor = "#17FF41";
-_missionTimeOut = 600;
-_missionDelayTime = [60,120,180,240,300] call BIS_fnc_selectRandom;
+_missionTimeOut = 900;
+_missionDelayTime = [60,120,180] call BIS_fnc_selectRandom;
 _missionRewardRadius = 250;
 _reward = floor(random 500);
 
@@ -60,20 +60,24 @@ diag_log format["WASTELAND SERVER - Mission Resumed"];
 _result = 0;
 
 //Add marker to client marker array.
-clientMissionMarkers set [count clientMissionMarkers,["Outpost_Marker",_randomPos,"Location of hostile outpost"]];
+clientMissionMarkers set [count clientMissionMarkers,["Outpost_Marker",_randomPos,"Hostile Outpost"]];
 publicVariable "clientMissionMarkers";
 
 _comp = ["MediumTentCamp_napa","citybase01","guardpost2_us","fuelDepot_us","mediumtentcamp3_ru","smallbase"] call BIS_fnc_selectRandom;
 _outpost = [_randomPos, (random 360), _comp] call (compile (preprocessFileLineNumbers "ca\modules\dyno\data\scripts\objectMapper.sqf"));
-{_x setVariable["R3F_LOG_disabled", true];} foreach _outpost;
+{_x setVariable["R3F_LOG_disabled", true, true];} foreach _outpost;
+
+_box = createVehicle ["RULaunchersBox",[(_randomPos select 0)+(random 3), (_randomPos select 1)+(random 3),0],[], 0, "NONE"];
+[_box] execVM "server\missions\Crates\makeBasicLaunchers.sqf";
+_box2 = createVehicle ["RUSpecialWeaponsBox",[(_randomPos select 0)-(random 3), (_randomPos select 1)-(random 3),0],[], 0, "NONE"];
+[_box2] execVM "server\missions\Crates\makeBasicWeapons.sqf";
 
 _hint = parseText format ["<t align='center' color='%1' shadow='2' size='1.75'>Outpost Mission</t><br/><t align='center' color='%1'>------------------------------</t><br/><t color='%2' size='1.0'>The snipers observing the outpost have relayed the position of the outpost, proceed to the GPS coords and secure the outpost</t>", _HeadColor, _subTextColour];
 [nil,nil,rHINT,_hint] call RE;
 
-_choice = ["server\missions\Units\smallGroup.sqf","server\missions\Units\midGroup.sqf","server\missions\Units\largeGroup.sqf","server\missions\Units\hugeGroup.sqf"] call BIS_fnc_selectRandom;
+_choice = ["server\missions\Units\largeGroup.sqf","server\missions\Units\hugeGroup.sqf","server\missions\Units\platoonGroup.sqf"] call BIS_fnc_selectRandom;
 CivGrpM = createGroup civilian;
 [CivGrpM,_randomPos]execVM _choice;
-[CivGrpM, _randomPos] call BIS_fnc_taskDefend;
 
 diag_log format["WASTELAND SERVER - Mission Waiting to be Finished"];
 _startTime = floor(time);
@@ -90,6 +94,8 @@ waitUntil
 if(_result == 1) then
 {
 	//Mission Failed.
+    deleteVehicle _box;
+    deleteVehicle _box2;
     {deleteVehicle _x;}forEach units CivGrpM;
     deleteGroup CivGrpM;
 	{deleteVehicle _x} foreach _outpost;
@@ -102,12 +108,11 @@ if(_result == 1) then
     deleteGroup CivGrpM; 
 	{deleteVehicle _x} foreach _outpost;
 	
-	_InArea = _randomPos nearEntities _missionRewardRadius;
-	{
-		if (isPlayer _x) then {
-			player setVariable["cmoney", (player getVariable "cmoney")+_reward,true];
+    {
+		if ((_x distance _randomPos) <= _missionRewardRadius) then {
+			_x setVariable["cmoney", (_x getVariable "cmoney")+_reward,true];
 		};
-	} forEach _InArea;
+    } foreach playableunits;
 	
     _hint = parseText format ["<t align='center' color='%1' shadow='2' size='1.75'>Outpost Secured</t><br/><t align='center' color='%1'>------------------------------</t><br/><t align='center' color='%2'>The outpost has been secured by a side, the original force occupying the outpost has been eliminated</t><br/><t align='center' color='%2'>Reward Money: %3</t>", _HeadColor, _subTextColour,_reward];
 	[nil,nil,rHINT,_hint] call RE;

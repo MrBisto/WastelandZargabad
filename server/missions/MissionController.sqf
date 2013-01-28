@@ -1,27 +1,48 @@
 if(!isServer) exitWith {};
 
-private ["_mission","_selectedMission"];
+private ["_mission","_selectedMission","_currTime","_startTime","_continue"];
 
 diag_log format["WASTELAND SERVER - Started Mission State"];
 
 //Mission Array
 _Marray = ["mission_vehicle",
-			"mission_airwreck",
-			"mission_outpost",
-			"mission_wepcache",
-			"mission_supplies",
-			"mission_bomb"
+            "mission_airwreck",
+            "mission_outpost",
+            "mission_supplies",
+            "mission_bomb"
 ];          
 
 _selectedMission = floor(random (count _Marray - 1)); //default
 MissionRunning = false; //global mission variable
-sleep 60; //Don't let missions begin the second the server launches
+
+//Don't let the mission start for at least 60 seconds after the server is booted up
+_startTime = floor(time);
+_currTime = floor(time);
+_continue = 0;
+
+waitUntil
+{ 
+    _currTime = floor(time);
+    if(_currTime - _startTime >= 60) then {_continue = 1;};
+    (_continue == 1)
+};
 
 while {true} do //keep it running constantly
 {
     if (!MissionRunning) then { //if no mission is running
 		diag_log format["WASTELAND SERVER - Starting Mission"];
-		sleep 60; //Make sure the missions aren't piled on top of each other
+		
+		//Make sure the missions aren't piled on top of each other
+		_continue = 0;
+		_startTime = floor(time);
+		_currTime = floor(time);
+		waitUntil
+		{ 
+			_currTime = floor(time);
+			if(_currTime - _startTime >= 60) then {_continue = 1;};
+			(_continue == 1)
+		};
+		_continue = 0;
         _mission = _Marray select _selectedMission;
         execVM format ["server\missions\Missions\%1.sqf",_mission];
 		MissionRunning = true;
@@ -31,6 +52,14 @@ while {true} do //keep it running constantly
 		};
         diag_log format["WASTELAND SERVER - Execute New Mission"];
     } else {
-    	sleep 15; //Use this so the while loop isn't spamming this shit out 
+		_startTime = floor(time);
+		_currTime = floor(time);
+		_continue = 0;
+		waitUntil
+		{ 
+			_currTime = floor(time);
+			if(_currTime - _startTime >= 15) then {_continue = 1;};
+			(_continue == 1)
+		};
     };    
 };

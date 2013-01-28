@@ -66,10 +66,15 @@ civilianVehicles = ["car_hatchback",
 					"UAZ_Unarmed_TK_CIV_EP1",
 					"ATV_US_EP1",
 					"BAF_Offroad_W",
-					"S1203_ambulance_EP1"];
+					"S1203_ambulance_EP1",
+					"V3S_Open_TK_CIV_EP1",
+					"hilux1_civil_3_open_EP1",
+					"Offroad_DSHKM_TK_GUE_EP1"];
 
 //Military Vehicle List - Random Spawns
 militaryVehicles = ["UAZ_CDF",
+					"Kamaz",
+					"MTVR_DES_EP1",
 					"SUV_PMC",
 					"MTVR",
 					"BAF_Offroad_W",
@@ -87,7 +92,17 @@ armedMilitaryVehicles = ["ArmoredSUV_PMC",
 							"HMMWV_Armored",
 							"HMMWV_MK19",
 							"HMMWV_TOW",
-							"GAZ_Vodnik"];
+							"GAZ_Vodnik",
+							"BAF_Jackal2_L2A1_D",
+							"LAV25_HQ",
+							"BRDM2_CDF",
+							"UAZ_SPG9_INS",
+							"AAV",
+							"BAF_FV510_W",
+							"MLRS",
+							"BMP3",
+							"2S6M_Tunguska",
+							"M1128_MGS_EP1"];
 
 //Item Config
 pickupList = ["Satelit",
@@ -140,10 +155,38 @@ objectList = ["Land_Barrel_water",
                 "Land_Campfire_burning",
                 "Land_GuardShed",
                 "Land_tent_east",
-				"Land_ConcreteBlock"];
-                                         
+				"Land_radar_EP1",
+				"Land_vez",
+				"Land_ConcreteBlock",
+				"Hhedgehog_concrete",
+				"Gunrack1",
+				"Land_Misc_Cargo1Ao",
+				"ZavoraAnim",
+                "Land_CncBlock",
+                "Land_Barrack2_EP1",
+				"Body",
+				"TK_GUE_WarfareBContructionSite1_EP1",
+				"TK_GUE_WarfareBContructionSite_EP1",
+				"TK_GUE_WarfareBFieldhHospital_EP1",
+				"US_WarfareBContructionSite_EP1",
+				"US_WarfareBFieldhHospital_EP1"];
+				
 //Object List - Random Spawns.
 staticWeaponsList = ["M2StaticMG_US_EP1",
+				"SearchLight_UN_EP1",
+				"KORD_high",
+				"ZU23_Gue",
+				"Fort_Nest_M240",
+				"2b14_82mm_TK_EP1",
+				"BAF_L2A1_Tripod_W",
+				"SearchLight_TK_INS_EP1",
+				"D30_TK_EP1",
+				"MK19_TriPod_US_EP1",
+				"Igla_AA_pod_East",
+				"SPG9_Ins",
+				"BAF_GMG_Tripod_D",
+				"ZU23_CDF",
+				"Ins_WarfareBMGNest_PK",
 				"DSHKM_TK_INS_EP1"];
 
 //Object List - Random Helis.

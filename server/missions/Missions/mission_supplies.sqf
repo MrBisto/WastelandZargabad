@@ -6,17 +6,30 @@
 
 if(!isServer) exitwith {};
 diag_log format["WASTELAND SERVER - Mission Started"];
-private ["_unitsAlive","_playerPresent","_subTextColour","_picture","_missionTimeOut","_missionDelayTime","_missionPlayerRadius","_hint","_startTime","_currTime","_result","_vehicle","_randomIndex","_selectedMarker","_indexAmount","_GotLoc","_randomPos","_choice","_HeadColor","_name","_missionRewardRadius","_reward","_InArea"];
+private ["_unitsAlive","_playerPresent","_subTextColour","_picture","_missionTimeOut","_missionDelayTime","_missionPlayerRadius","_hint","_startTime","_currTime","_result","_vehicle","_randomIndex","_selectedMarker","_indexAmount","_GotLoc","_randomPos","_choice","_HeadColor","_name","_missionRewardRadius","_reward","_InArea","_fuel","_ammo","_damage"];
 
 //Mission Initialization.
 _result = 0;
 _subTextColour = "#FFFFFF";
 _HeadColor = "#17FF41";
-_missionTimeOut = 600;
-_missionDelayTime = [60,120,180,240,300] call BIS_fnc_selectRandom;
+_missionTimeOut = 900;
+_missionDelayTime = [60,120,180] call BIS_fnc_selectRandom;
 _missionPlayerRadius = 150;
 _missionRewardRadius = 250;
 _reward = floor(random 500);
+_fuel = floor(random 1);
+_ammo = floor(random 1);
+_damage = floor(random 1);
+
+if (_fuel < 0.25) then { 
+	_fuel = 0.4; 
+};
+if (_ammo < 0.20) then { 
+	_ammo = 0.3; 
+};
+if (_damage > 0.8) then { 
+	_damage = 0.3; 
+};
 
 _GotLoc = false; //Make sure this is false at first
 while {!_GotLoc} do { //Loop until it's true 
@@ -63,32 +76,27 @@ _result = 0;
 _veh = ["Ural_TK_CIV_EP1","UralCivil"] call BIS_fnc_selectRandom;
 
 //Add marker to client marker array.
-clientMissionMarkers set [count clientMissionMarkers,["Mission_Marker",_randomPos,"Possible vehicle supply truck"]];
+clientMissionMarkers set [count clientMissionMarkers,["Supplies_Marker",_randomPos,"Supply Truck"]];
 publicVariable "clientMissionMarkers";
 
 _vehicle = createVehicle [_veh,[(_randomPos select 0), _randomPos select 1,0],[], 0, "NONE"];
-_vehicle setFuel (random 1);
-_vehicle setVehicleAmmo (random 1);
-_vehicle setdamage (random 0.5);
+_vehicle setFuel _fuel;
+_vehicle setVehicleAmmo _ammo;
+_vehicle setdamage _damage;
+_vehicle setVariable["original",1,true];
 
 if(_veh == "Ural_TK_CIV_EP1") then {
-	_vehicle setVariable["water",floor(random 400),true];
 	_name = "Water supply truck";
 };
 if(_veh == "UralCivil") then {
-	_vehicle setVariable["food",floor(random 400),true];
 	_name = "Food supply truck";
 };
 
-_vehicle setVehicleLock "LOCKED";
-_vehicle setVariable["original",1,true];
-_vehicle setVariable ["R3F_LOG_disabled", true, true];
-
 _picture = getText (configFile >> "cfgVehicles" >> typeOf _vehicle >> "picture");
-_hint = parseText format ["<t align='center' color='%1' shadow='2' size='1.75'>Supply Mission</t><br/><t align='center' color='%1'>------------------------------</t><br/><t align='center'><img size='5' image='%3'/></t><br/><t color='%2' size='1.0'>The %4 position has been located, proceed to the location and secure that vehicle, we need this to assist us with our failing supplies, do not fail this mission</t>", _HeadColor, _subTextColour, _picture, _name];
+_hint = parseText format ["<t align='center' color='%1' shadow='2' size='1.75'>Supply Mission</t><br/><t align='center' color='%1'>------------------------------</t><br/><t align='center'><img size='5' image='%3'/></t><br/><t color='%2' size='1.0'>The %4 position has been located, proceed to the location and remove that vehicle from the area, do not fail us on this mission</t>", _HeadColor, _subTextColour, _picture, _name];
 [nil,nil,rHINT,_hint] call RE;
 
-_choice = ["server\missions\Units\smallGroup.sqf","server\missions\Units\midGroup.sqf","server\missions\Units\largeGroup.sqf","server\missions\Units\hugeGroup.sqf"] call BIS_fnc_selectRandom;
+_choice = ["server\missions\Units\smallGroup.sqf","server\missions\Units\midGroup.sqf","server\missions\Units\largeGroup.sqf"] call BIS_fnc_selectRandom;
 CivGrpM = createGroup civilian;
 [CivGrpM,_randomPos]execVM _choice;
 
@@ -97,16 +105,10 @@ _startTime = floor(time);
 waitUntil
 {
     sleep 1; 
-	_playerPresent = false;
     _currTime = floor(time);
     if(_currTime - _startTime >= _missionTimeOut) then {_result = 1;};
-    {if((isPlayer _x) AND (_x distance _vehicle <= _missionPlayerRadius)) then {_playerPresent = true};}forEach playableUnits;
-    _unitsAlive = ({alive _x} count units CivGrpM);
-    (_result == 1) OR ((_playerPresent) AND (_unitsAlive < 1)) OR ((damage _vehicle) == 1)
+    (_result == 1) OR ((_vehicle distance _randomPos) > 150) OR ((damage _vehicle) == 1)
 };
-
-_vehicle setVehicleLock "UNLOCKED";
-_vehicle setVariable ["R3F_LOG_disabled", false, true];
 
 if(_result == 1) then
 {
@@ -120,14 +122,23 @@ if(_result == 1) then
     diag_log format["WASTELAND SERVER - Mission Failed"];
 } else {
 	//Mission Complete.
+	{deleteVehicle _x;}forEach units CivGrpM;
     deleteGroup CivGrpM;
-
-	_InArea = _randomPos nearEntities _missionRewardRadius;
-	{
-		if (isPlayer _x) then {
-			player setVariable["cmoney", (player getVariable "cmoney")+_reward,true];
+	
+	if(_veh == "Ural_TK_CIV_EP1") then {
+		_vehicle setVariable["water",floor(random 300),true];
+		[nil,_vehicle,"per",rADDACTION,"<t color='#FF0000'>Bottle up water</t>","client\functions\foodTruck.sqf", ["1"],6] call RE;
+	};
+	if(_veh == "UralCivil") then {
+		_vehicle setVariable["canfood",floor(random 300),true];
+		[nil,_vehicle,"per",rADDACTION,"<t color='#FF0000'>Take Canned food</t>","client\functions\foodTruck.sqf", ["2"],6] call RE;
+	};
+	
+    {
+		if ((_x distance _randomPos) <= _missionRewardRadius) then {
+			_x setVariable["cmoney", (_x getVariable "cmoney")+_reward,true];
 		};
-	} forEach _InArea;
+    } foreach playableunits;
 	
     _hint = parseText format ["<t align='center' color='%1' shadow='2' size='1.75'>Supply Mission</t><br/><t align='center' color='%1'>------------------------------</t><br/><t align='center'><img size='5' image='%3'/></t><br/><t align='center' color='%2'>The %4 was retrieved by a side giving them the tactical advantage in the supply line battle</t><br/><t align='center' color='%2'>Reward Money: %5</t>", _HeadColor, _subTextColour, _picture,_name,_reward];
 	[nil,nil,rHINT,_hint] call RE;
@@ -137,7 +148,7 @@ if(_result == 1) then
 
 //Remove marker from client marker array.
 {
-    if(_x select 0 == "Mission_Marker") then
+    if(_x select 0 == "Supplies_Marker") then
     {
     	clientMissionMarkers set [_forEachIndex, "REMOVETHISCRAP"];
 		clientMissionMarkers = clientMissionMarkers - ["REMOVETHISCRAP"];
